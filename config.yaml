@@ -1,62 +1,99 @@
-# jobhunt configuration. Everything tunable lives here — no editing Python.
-#
-# Tune `filters` first. It is deterministic, free, and it is what keeps the
-# LLM bill small: roughly 2000 raw postings -> 40 candidates before a single
-# token is spent.
-
 filters:
-  # Title regexes, matched case-insensitively against the job title only.
-  # A title must match at least one include AND zero excludes.
-  #
-  # Gotcha: "sde" as a bare regex does NOT match "Software Development
-  # Engineer" — different words entirely. Use \bsde\b for the acronym and
-  # list the spelled-out variants separately, as below.
   include_titles:
-    - '\b(software|full[\s-]?stack|frontend|front-end|backend|back-end|web|application|product)\b.*\bengineer\b'
-    - '\bengineer\b.*\b(software|full[\s-]?stack|frontend|front-end|backend|back-end|web|application|product)\b'
+    - "engineer"
+    - "developer"
+    - "software"
+    - 'full[\s-]?stack'
+    - "frontend"
+    - "front-end"
+    - "backend"
+    - "back-end"
+    - "web"
+    - "product engineer"
+    - "application engineer"
+    - "application developer"
+    - "member of technical staff"
     - '\bsde\b'
-    - '\bsde\s*-?\s*(i{1,3}|[123])\b'
     - "software development engineer"
     - "software engineer"
-    - "member of technical staff"
-    - '\breact\b.*\bengineer\b'
-    - '\bengineer\b.*\breact\b'
-    - '\b(next\.?js|node\.?js|javascript|typescript)\b.*\bengineer\b'
-    - '\bengineer\b.*\b(next\.?js|node\.?js|javascript|typescript)\b'
-    # AI/LLM-integration track — matches your Gemini/Groq API, prompt
-    # engineering, and streaming-response project work. Drop these if you
-    # move away from applied-AI product work.
-    - '\b(ai|llm|applied ai|ml)\b.*\bengineer\b'
-    - '\bengineer\b.*\b(ai|llm|applied ai)\b'
-    - "forward deployed engineer"
-    - '\bproduct engineer\b'
-    # payments/fintech track — matches your Razorpay integration + secure
-    # checkout work on Rivanto Mattress. Cheap to keep, since it just
-    # widens the net at companies like Razorpay, Zeta, Cashfree-style shops.
-    - '\b(payments?|fintech|checkout)\b.*\bengineer\b'
-    - '\bengineer\b.*\b(payments?|fintech|checkout)\b'
+    - "software developer"
+    - 'full[\s-]?stack engineer'
+    - 'full[\s-]?stack developer'
+    - "frontend engineer"
+    - "frontend developer"
+    - "front-end engineer"
+    - "front-end developer"
+    - "backend engineer"
+    - "backend developer"
+    - "back-end engineer"
+    - "back-end developer"
+    - "web engineer"
+    - "web developer"
+    - "ui engineer"
+    - "ui developer"
+    - "javascript"
+    - "typescript"
+    - "react"
+    - "next"
+    - 'next\.?js'
+    - "node"
+    - 'node\.?js'
+    - "ai engineer"
+    - "applied ai"
+    - "llm"
+    - "genai"
 
-  # Anything matching these is dropped even if an include matched.
   exclude_titles:
-    - '\b(staff|principal|distinguished|fellow|architect)\b' # too senior for now
-    # "Senior" at 1 year is a consistent mismatch on the screener — dropping
-    # it here is free, dropping it after an LLM call is not. Delete this
-    # line once you're ~3-4 years in, or if you want to stretch-apply anyway.
-    - '\bsenior\b'
-    - '\b(director|vp|vice president|head of|chief|cto)\b'
-    - '\b(manager|management)\b'
-    - '\b(intern|internship|apprentice|trainee)\b' # too junior for a 1 YoE + full-time search
-    - '\b(sales|account executive|marketing|recruit|support|success)\b'
-    - '\b(ios|android|mobile|game|embedded|firmware|kernel|driver)\b' # wrong discipline — no mobile/low-level background
-    - '\b(data scientist|machine learning scientist|research scientist)\b' # applied AI ≠ research track
-    - '\b(devops|sre|site reliability|network(ing)?|dataplane|data plane|packet|c\+\+)\b' # no infra/networking/C++ background on resume
-    - '\b(qa|quality assurance|test engineer|sdet)\b' # Selenium/Functionize on resume is testing exposure, not a target track — drop if that changes
+    - '\bstaff\b'
+    - '\bprincipal\b'
+    - '\bdistinguished\b'
+    - '\bfellow\b'
+    - '\barchitect\b'
+    - '\bdirector\b'
+    - '\bvp\b'
+    - '\bvice president\b'
+    - '\bhead of\b'
+    - '\bchief\b'
+    - '\bcto\b'
+    - '\bmanager\b'
+    - '\bmanagement\b'
+    - '\bintern\b'
+    - '\binternship\b'
+    - '\bapprentice\b'
+    - '\btrainee\b'
+    - '\bsales\b'
+    - '\baccount executive\b'
+    - '\bmarketing\b'
+    - '\brecruit\b'
+    - '\bsupport\b'
+    - '\bsuccess\b'
+    - '\bios\b'
+    - '\bandroid\b'
+    - '\bmobile\b'
+    - '\bgame\b'
+    - '\bembedded\b'
+    - '\bfirmware\b'
+    - '\bkernel\b'
+    - '\bdriver\b'
+    - '\bdata scientist\b'
+    - '\bmachine learning scientist\b'
+    - '\bresearch scientist\b'
+    - '\bdevops\b'
+    - '\bsre\b'
+    - '\bsite reliability\b'
+    - '\bnetwork(ing)?\b'
+    - '\bdataplane\b'
+    - '\bdata plane\b'
+    - '\bpacket\b'
+    - '\bc\+\+\b'
+    - '\bqa\b'
+    - '\bquality assurance\b'
+    - '\btest engineer\b'
+    - '\bsdet\b'
 
-  # Substrings matched against "<location> <title>", case-insensitive.
-  # Leave empty to accept every location.
   locations:
     include:
-      # India — physical offices
+      - india
       - bangalore
       - bengaluru
       - hyderabad
@@ -67,55 +104,39 @@ filters:
       - gurgaon
       - noida
       - chennai
-      - india
-
-      # remote / global — catches roles open to anywhere, which is how an
-      # India-based candidate gets into US/EU-HQ'd companies like Vercel,
-      # Linear, Notion, Ramp, Retool, Perplexity
       - remote
-      - 'remote\s*[-–]\s*(global|worldwide|anywhere)'
-      - "work from anywhere"
-      - "wfh"
-      - "anywhere"
-      - "global"
-      - "apac"
-      - "emea"
-      - "asia"
-      - 'asia[\s-]?pacific'
+      - anywhere
+      - global
+      - worldwide
+      - apac
+      - asia
 
-    # location string alone isn't reliable — "Remote" on a US-HQ'd ATS often
-    # means "remote within the US" only. Cross-check the JD body for one of
-    # these before treating a "remote" listing as truly open to India.
     remote_scope_confirm_phrases:
-      - "remote.{0,20}(india|apac|anywhere|global|worldwide)"
-      - "(india|apac).{0,20}remote"
+      - "remote.{0,40}(india|apac|anywhere|global|worldwide|asia)"
+      - "(india|apac|anywhere|global|worldwide|asia).{0,40}remote"
       - "work from any location"
       - "no location restriction"
+      - "open to candidates in india"
+      - "hiring in india"
 
-    # flag but don't auto-drop — some US/EU companies post "Remote" then
-    # restrict to specific countries in the fine print; worth a manual check
-    # rather than a silent match
     remote_scope_reject_phrases:
-      - 'remote.{0,20}(us only|u\.s\. only|usa only|united states only)'
-      - "remote.{0,20}(uk only|eu only|europe only)"
-      - "must be authorized to work in the (us|united states|uk)"
+      - 'remote.{0,40}(us only|u\.s\. only|usa only|united states only)'
+      - "remote.{0,40}(canada only)"
+      - "remote.{0,40}(uk only|eu only|europe only)"
+      - "must be authorized to work in the (us|united states|uk|eu|europe|canada)"
+      - "only considering candidates based in the (us|united states|uk|eu|europe|canada)"
+      - "not hiring in india"
       - "no visa sponsorship"
 
-  # If true, anything reading as remote passes the location gate.
   allow_remote: true
+  max_age_days: 60
 
-  # Drop postings older than this. Set to null to disable.
-  # Boards often re-stamp `updated_at`, so this is a soft signal, not a promise.
-  max_age_days: 20
+screen_batch_size: 10
+screen_jd_chars: 2600
+draft_jd_chars: 7000
+score_threshold: 5.5
+max_per_digest: 10
 
-# --- LLM stages -------------------------------------------------------------
-screen_batch_size: 8 # jobs per screening call. Higher = cheaper, sloppier.
-screen_jd_chars: 1400 # JD truncation for screening
-draft_jd_chars: 6000 # JD truncation for drafting
-score_threshold: 7.0 # below this, no draft and no digest slot
-max_per_digest: 5 # hard cap on expensive draft calls per run
-
-# --- paths ------------------------------------------------------------------
 companies_file: companies.yaml
 profile_file: profile.json
 seen_file: seen.json
