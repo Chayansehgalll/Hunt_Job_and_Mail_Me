@@ -1,3 +1,7 @@
+# Main Final Commands
+.venv\Scripts\activate  
+python -m jobhunt run --send
+
 # Setup guide
 
 Start here if you've never run a Python project before. Every step assumes you
