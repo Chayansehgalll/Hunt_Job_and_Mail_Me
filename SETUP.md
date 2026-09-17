@@ -1,4 +1,6 @@
 # Main Final Commands
+If resume is changed
+python -m jobhunt profile --resume resume.pdf
 .venv\Scripts\activate  
 python -m jobhunt run --send
 
