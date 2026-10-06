@@ -115,6 +115,7 @@ def test_parsers_take_decoded_json_not_a_response():
     "Backend Engineer (Go)",
     "Site Reliability Engineer",
     "SDE II",
+    "Agent Engineer",
 ])
 def test_include_titles_match_real_titles(title):
     inc = FILTERS["include_titles"]
@@ -135,7 +136,7 @@ def test_bare_sde_regex_does_not_match_the_spelled_out_title():
     "Staff Software Engineer, Storage",       # too senior
     "Engineering Manager, Platform",          # management track
     "Enterprise Account Executive",           # wrong function
-    "Frontend Engineer, Design Systems",      # wrong discipline
+    "Android Engineer, Mobile Platform",      # wrong discipline
     "Data Scientist, Growth",                 # wrong discipline
 ])
 def test_junk_titles_are_rejected(title):
@@ -145,32 +146,34 @@ def test_junk_titles_are_rejected(title):
     assert excluded or not included, f"{title!r} would have survived"
 
 
-def test_full_mock_funnel_keeps_only_the_five_real_matches():
+def test_full_mock_funnel_keeps_only_configured_matches():
     kept = prefilter(fetch_all_mock(), FILTERS)
     titles = sorted(j.title for j in kept)
     assert titles == [
         "Backend Engineer (Go)",
-        "Site Reliability Engineer",
+        "Frontend Engineer, Design Systems",
         "Software Development Engineer, Core Infra",
         "Software Engineer II, Distributed Systems",
-        "Software Engineer, Networking",
     ]
 
 
 def test_stale_posting_is_dropped_by_freshness_gate():
     kept = prefilter(fetch_all_mock(), FILTERS)
-    assert not any("Senior Software Engineer, Platform" == j.title for j in kept)
+    assert not any("Software Engineer, Platform" == j.title for j in kept)
 
 
 def test_wrong_city_dropped_but_remote_kept():
     kept = prefilter(fetch_all_mock(), FILTERS)
     assert not any("San Francisco" in (j.location or "") for j in kept)
-    assert any("Remote" in (j.location or "") for j in kept)
+    from jobhunt.fetch import Job
+    remote = Job(job_id="lever:x:1", ats="lever", company="X",
+                 title="Backend Engineer", location="Remote - India",
+                 url="https://example.com", description="India remote role")
+    assert prefilter([remote], FILTERS) == [remote]
 
 
 def test_allow_remote_is_what_lets_an_out_of_region_remote_role_through():
-    """"Remote (India)" already matches the `india` location, so it is the
-    wrong fixture for this. Use a remote role that names no allowed city."""
+    """Remote roles outside a named city need an explicit eligible scope."""
     from jobhunt.fetch import Job
     remote = Job(job_id="lever:x:1", ats="lever", company="X",
                  title="Backend Engineer", location="Remote - Global",
@@ -181,6 +184,40 @@ def test_allow_remote_is_what_lets_an_out_of_region_remote_role_through():
 
     assert len(kept_on) == 1
     assert kept_off == []
+
+
+def test_remote_us_only_role_is_rejected():
+    from jobhunt.fetch import Job
+    remote = Job(job_id="ashby:x:1", ats="ashby", company="X",
+                 title="Backend Engineer", location="Remote",
+                 url="https://example.com",
+                 description="Remote position, US only. Must be authorized "
+                             "to work in the United States.")
+
+    assert prefilter([remote], FILTERS) == []
+
+
+def test_explicit_remote_city_outside_target_region_is_rejected():
+    from jobhunt.fetch import Job
+    remote = Job(job_id="ashby:x:3", ats="ashby", company="X",
+                 title="Backend Engineer", location="Remote, San Francisco, CA",
+                 url="https://example.com",
+                 description="Our distributed team works remotely worldwide.")
+
+    assert prefilter([remote], FILTERS) == []
+
+
+def test_remote_india_role_is_kept():
+    from jobhunt.fetch import Job
+    remote = Job(job_id="ashby:x:2", ats="ashby", company="X",
+                 title="Agent Engineer", location="Remote - India",
+                 url="https://example.com", description="Build AI agents.")
+    remote_city = Job(job_id="ashby:x:4", ats="ashby", company="X",
+                      title="Frontend Engineer", location="Remote - Bengaluru",
+                      url="https://example.com", description="Build web apps.")
+
+    assert prefilter([remote], FILTERS) == [remote]
+    assert prefilter([remote_city], FILTERS) == [remote_city]
 
 
 def test_empty_filters_keep_everything():

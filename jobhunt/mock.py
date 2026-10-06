@@ -80,7 +80,7 @@ GREENHOUSE = {
          "location": {"name": "San Francisco, CA"},
          "updated_at": _gh(1), "content": _BACKEND_JD},
         # junk: would pass every other gate, but it is ancient
-        {"id": 5501005, "title": "Senior Software Engineer, Platform",
+        {"id": 5501005, "title": "Software Engineer, Platform",
          "absolute_url": "https://boards.greenhouse.io/acme-edge/jobs/5501005",
          "location": {"name": "Remote - India"},
          "updated_at": _gh(STALE_DAYS), "content": _BACKEND_JD},

@@ -1,7 +1,6 @@
 companies:
   - { ats: greenhouse, slug: razorpaysoftwareprivatelimited, name: Razorpay }
   - { ats: greenhouse, slug: groww, name: Groww }
-  - { ats: greenhouse, slug: postman, name: Postman }
   - { ats: greenhouse, slug: druva, name: Druva }
   - { ats: greenhouse, slug: vercel, name: Vercel }
   - { ats: lever, slug: meesho, name: Meesho }
@@ -10,7 +9,5 @@ companies:
   - { ats: ashby, slug: ramp, name: Ramp }
   - { ats: ashby, slug: linear, name: Linear }
   - { ats: ashby, slug: perplexity, name: Perplexity }
-  - { ats: ashby, slug: retool, name: Retool }
   - { ats: ashby, slug: supabase, name: Supabase }
-  - { ats: ashby, slug: hasura, name: Hasura }
-  - { ats: ashby, slug: rippling, name: Rippling }
+  - { ats: ashby, slug: sarvam, name: Sarvam AI }

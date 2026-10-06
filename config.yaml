@@ -40,11 +40,15 @@ filters:
     - 'node\.?js'
     - "ai engineer"
     - "applied ai"
+    - "agent engineer"
+    - "generative ai"
     - "llm"
     - "genai"
 
   exclude_titles:
     - '\bstaff\b'
+    - '\bsenior\b'
+    - '\blead\b'
     - '\bprincipal\b'
     - '\bdistinguished\b'
     - '\bfellow\b'

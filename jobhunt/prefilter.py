@@ -33,7 +33,15 @@ def _parse_date(value: str | None) -> datetime | None:
 def prefilter(jobs: list[Job], cfg: dict) -> list[Job]:
     inc = cfg.get("include_titles") or [r"."]
     exc = cfg.get("exclude_titles") or []
-    locs = [l.lower() for l in (cfg.get("locations") or [])]
+    location_cfg = cfg.get("locations") or []
+    if isinstance(location_cfg, dict):
+        locs = [l.lower() for l in (location_cfg.get("include") or [])]
+        remote_confirm = location_cfg.get("remote_scope_confirm_phrases") or []
+        remote_reject = location_cfg.get("remote_scope_reject_phrases") or []
+    else:
+        locs = [l.lower() for l in location_cfg]
+        remote_confirm = cfg.get("remote_scope_confirm_phrases") or []
+        remote_reject = cfg.get("remote_scope_reject_phrases") or []
     allow_remote = bool(cfg.get("allow_remote", True))
     max_age = cfg.get("max_age_days")
     cutoff = datetime.now(timezone.utc) - timedelta(days=max_age) if max_age else None
@@ -45,9 +53,32 @@ def prefilter(jobs: list[Job], cfg: dict) -> list[Job]:
             continue
 
         if locs:
-            hay = f"{j.location} {j.title}".lower()
-            is_remote = allow_remote and any(h in hay for h in REMOTE_HINTS)
-            if not is_remote and not any(l in hay for l in locs):
+            location_hay = f"{j.location} {j.title}".lower()
+            full_hay = f"{location_hay} {j.description}"
+            is_remote = any(h in location_hay for h in REMOTE_HINTS)
+            if is_remote:
+                remote_ok = allow_remote
+                if remote_ok and remote_reject and _any_match(remote_reject, full_hay):
+                    remote_ok = False
+                broad_remote_scopes = {
+                    *REMOTE_HINTS, "india", "anywhere", "global", "worldwide",
+                    "apac", "asia",
+                }
+                target_location_in_board = any(
+                    l in j.location.lower() for l in locs if l not in broad_remote_scopes
+                )
+                scoped_remote_location = re.search(
+                    r"\bremote\b\s*[-,(]\s*\S", j.location, re.I)
+                if remote_ok and not target_location_in_board and scoped_remote_location \
+                        and not _any_match(remote_confirm, j.location):
+                    remote_ok = False
+                if remote_ok and not target_location_in_board and remote_confirm \
+                        and not _any_match(remote_confirm, full_hay):
+                    remote_ok = False
+                if not remote_ok:
+                    stats["location"] += 1
+                    continue
+            elif not any(l in location_hay for l in locs):
                 stats["location"] += 1
                 continue
 

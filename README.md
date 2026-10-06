@@ -37,13 +37,13 @@ pipeline runs with no secrets configured. You should see:
 
 ```
 [2/5] filtering
-  prefilter: 12 -> 5 (dropped title=5 location=1 stale=1)
-[3/5] screening 5 jobs (keyword stub — DEV ONLY)
+  prefilter: 12 -> 4 (dropped title=6 location=1 stale=1)
+[3/5] screening 4 jobs (keyword stub — DEV ONLY)
   3 scored >= 7.0
 [5/5] digest
   wrote out/digest.html
 
-funnel: 12 scanned -> 5 passed filters -> 5 new -> 3 in digest
+funnel: 12 scanned -> 4 passed filters -> 4 new -> 3 in digest
 ```
 
 Open `out/digest.html` in a browser. That's the email you'd have received.
@@ -82,6 +82,8 @@ and intended to be read.
 
 `config.yaml` holds the deterministic gate that runs **before** any LLM call.
 This is the whole cost story — get it right and you spend cents a day.
+Remote roles must explicitly include India/APAC/global eligibility; US-, UK-,
+and EU-only remote jobs are discarded.
 
 ```yaml
 filters:
